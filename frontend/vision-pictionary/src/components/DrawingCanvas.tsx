@@ -1,67 +1,138 @@
 import React, { useEffect, useRef } from "react";
 
 export default function DrawingCanvas() {
+  // Types
+  type Point = { x: number; y: number };
+  type Stroke = Point[];
+
+  // Refs
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const isDrawing = useRef(false);
-  type Point = { x: number; y: number };
   const lastPos = useRef<Point | null>(null);
-  type Stroke = Point[];
   const strokes = useRef<Stroke[]>([]);
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    // initialize
-function initializeCanvas(
-    ctx: CanvasRenderingContext2D,
-    canvas: HTMLCanvasElement
-) {
+  // Canvas Helpers
+  const initializeCanvas = (ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
     ctx.lineWidth = 8;
     ctx.strokeStyle = "black";
-}
+  };
+
+  const drawLine = (ctx: CanvasRenderingContext2D, from: Point, to: Point) => {
+    ctx.beginPath();
+    ctx.moveTo(from.x, from.y);
+    ctx.lineTo(to.x, to.y);
+    ctx.stroke();
+  };
+  const drawStroke = (stroke: Stroke) => {
+    if (stroke.length < 2) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.beginPath();
+    ctx.moveTo(stroke[0].x, stroke[0].y);
+    for(let i=1; i<stroke.length; i++){
+        ctx.lineTo(stroke[i].x, stroke[i].y);
+    }
+    ctx.stroke();
+  };
+
+  const redrawCanvas = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
     initializeCanvas(ctx, canvas);
+    for (const stroke of strokes.current) {
+      drawStroke(stroke);
+    }
+  };
 
-    const getPos = (clientX: number, clientY: number) => {
-      const rect = canvas.getBoundingClientRect();
-      return { x: clientX - rect.left, y: clientY - rect.top };
-    };
+  // Game Helpers
+  const undo = () => {
+    if (strokes.current.length > 0) {
+      strokes.current.pop();
+      redrawCanvas();
+    }
+  };
 
-    const startDrawing = (e: MouseEvent) => {
-      isDrawing.current = true;
-      lastPos.current = getPos(e.clientX, e.clientY);
-      strokes.current.push([]);
-      strokes.current[strokes.current.length - 1].push(
-        lastPos.current
-      );
-    };
+  const clearCanvas = () => {
+    strokes.current = [];
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    initializeCanvas(ctx, canvas);
+  };
 
-    const draw = (e: MouseEvent) => {
-      if (!isDrawing.current || !lastPos.current) return;
-      const pos = getPos(e.clientX, e.clientY);
-      ctx.beginPath();
-      ctx.moveTo(lastPos.current.x, lastPos.current.y);
-      ctx.lineTo(pos.x, pos.y);
-      ctx.stroke();
-      lastPos.current = pos;
-      strokes.current[
-        strokes.current.length - 1
-      ].push(pos);
-    };
+  // Event Handlers
+  const getPos = (clientX: number, clientY: number): Point => {
+    const canvas = canvasRef.current!;
+    const rect = canvas.getBoundingClientRect();
+    return { x: clientX - rect.left, y: clientY - rect.top };
+  };
 
-    const stopDrawing = () => {
-      isDrawing.current = false;
-      console.log(strokes.current);
-      lastPos.current = null;
-    };
+  const startDrawing = (e: MouseEvent) => {
+    const pos = getPos(e.clientX, e.clientY);
+    isDrawing.current = true;
+    lastPos.current = pos;
+    strokes.current.push([pos]);
+  };
+
+  const draw = (e: MouseEvent) => {
+    if (!isDrawing.current || !lastPos.current) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const pos = getPos(e.clientX, e.clientY);
+    drawLine(ctx, lastPos.current, pos);
+    lastPos.current = pos;
+    strokes.current[strokes.current.length - 1].push(pos);
+  };
+
+  const stopDrawing = () => {
+    isDrawing.current = false;
+    lastPos.current = null;
+  };
+
+  const touchStart = (e: TouchEvent) => {
+    const t = e.touches[0];
+    if (!t) return;
+    const pos = getPos(t.clientX, t.clientY);
+    isDrawing.current = true;
+    lastPos.current = pos;
+    strokes.current.push([pos]);
+  };
+
+  const touchMove = (e: TouchEvent) => {
+    const t = e.touches[0];
+    if (!t || !isDrawing.current || !lastPos.current) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const pos = getPos(t.clientX, t.clientY);
+    drawLine(ctx, lastPos.current, pos);
+    lastPos.current = pos;
+    strokes.current[strokes.current.length - 1].push(pos);
+    e.preventDefault();
+  };
+
+  const touchEnd = () => stopDrawing();
+
+  // useEffect: attach listeners and initialize
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    initializeCanvas(ctx, canvas);
 
     // mouse
     canvas.addEventListener("mousedown", startDrawing);
@@ -69,28 +140,7 @@ function initializeCanvas(
     canvas.addEventListener("mouseup", stopDrawing);
     canvas.addEventListener("mouseleave", stopDrawing);
 
-    // touch (basic support)
-    const touchStart = (e: TouchEvent) => {
-      const t = e.touches[0];
-      if (!t) return;
-      isDrawing.current = true;
-      lastPos.current = getPos(t.clientX, t.clientY);
-    };
-
-    const touchMove = (e: TouchEvent) => {
-      const t = e.touches[0];
-      if (!t || !isDrawing.current || !lastPos.current) return;
-      const pos = getPos(t.clientX, t.clientY);
-      ctx.beginPath();
-      ctx.moveTo(lastPos.current.x, lastPos.current.y);
-      ctx.lineTo(pos.x, pos.y);
-      ctx.stroke();
-      lastPos.current = pos;
-      e.preventDefault();
-    };
-
-    const touchEnd = () => stopDrawing();
-
+    // touch
     canvas.addEventListener("touchstart", touchStart, { passive: false });
     canvas.addEventListener("touchmove", touchMove, { passive: false });
     canvas.addEventListener("touchend", touchEnd);
@@ -117,8 +167,8 @@ function initializeCanvas(
         border: "2px solid black",
         borderRadius: 12,
         touchAction: "none",
-        backgroundColor:"white",
-        cursor:"crosshair",
+        backgroundColor: "white",
+        cursor: "crosshair",
       }}
     />
   );
