@@ -3,14 +3,15 @@ import DrawingCanvas from "./components/DrawingCanvas";
 function App() {
   return (
     <div
-      style={{
+    style={{
         display: "flex",
         justifyContent: "center",
-        marginTop: "40px",
-      }}
-    >
-      <DrawingCanvas />
-    </div>
+        alignItems: "center",
+        flexDirection: "column",
+    }}
+>
+    <DrawingCanvas />
+</div>
   );
 }
 
