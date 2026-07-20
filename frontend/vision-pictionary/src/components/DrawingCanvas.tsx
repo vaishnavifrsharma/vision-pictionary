@@ -55,10 +55,9 @@ export default function DrawingCanvas() {
 
   // Game Helpers
   const undo = () => {
-    if (strokes.current.length > 0) {
+    if(strokes.current.length===0) return;
       strokes.current.pop();
       redrawCanvas();
-    }
   };
 
   const clearCanvas = () => {
@@ -158,18 +157,33 @@ export default function DrawingCanvas() {
     };
   }, []);
 
+  const buttonStyle: React.CSSProperties = {
+    padding: "10px 18px",
+    fontSize: 16,
+    borderRadius: 8,
+    border: "none",
+    cursor: "pointer",
+    minWidth: 120,
+  };
+
   return (
-    <canvas
-      ref={canvasRef}
-      width={800}
-      height={500}
-      style={{
-        border: "2px solid black",
-        borderRadius: 12,
-        touchAction: "none",
-        backgroundColor: "white",
-        cursor: "crosshair",
-      }}
-    />
+    <>
+      <canvas
+        ref={canvasRef}
+        width={800}
+        height={500}
+        style={{
+          border: "2px solid black",
+          borderRadius: 12,
+          touchAction: "none",
+          backgroundColor: "white",
+          cursor: "crosshair",
+        }}
+      />
+      <div style={{ display: "flex", justifyContent: "center", gap: 12, marginTop: 16 }}>
+        <button onClick={undo} style={{ ...buttonStyle, backgroundColor: "#007bff", color: "white" }}>Undo</button>
+        <button onClick={clearCanvas} style={{ ...buttonStyle, backgroundColor: "#dc3545", color: "white" }}>Clear</button>
+      </div>
+    </>
   );
 }
