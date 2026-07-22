@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+venv/
+.venv/
+
+# Python environment files
+.env
+
+# Datasets
+backend/data/
+data/
+
+# Model checkpoints
+backend/models/
+models/
+
+# macOS
+.DS_Store
+
+# VS Code
+.vscode/
