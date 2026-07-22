@@ -22,3 +22,20 @@ models/
 
 # VS Code
 .vscode/
+
+#testing
+backend/processed_drawing.png/
+backend/received_canvas.png/
+
+# Debug images
+backend/processed_drawing.png
+backend/received_canvas.png
+
+# Local demo images
+car_example.png
+cup_example.png
+pizza_example.png
+tree_example.png
+
+# Demo folder
+demo_examples/

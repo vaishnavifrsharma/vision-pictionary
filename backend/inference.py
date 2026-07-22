@@ -141,7 +141,7 @@ def preprocess_image(image: Image.Image) -> tuple[torch.Tensor, Image.Image]:
     return tensor, proc_img
 
 
-def predict_image(image: Image.Image):
+def predict_image(image: Image.Image, top_k: int = 3):
     image_tensor, processed_image = preprocess_image(image)
     image_tensor = image_tensor.to(DEVICE)
 
@@ -151,7 +151,7 @@ def predict_image(image: Image.Image):
 
         top_probabilities, top_indices = torch.topk(
             probabilities,
-            k=min(5, NUM_CLASSES),
+            k=min(top_k, NUM_CLASSES),
             dim=1
         )
 
@@ -162,9 +162,11 @@ def predict_image(image: Image.Image):
         top_indices[0]
     ):
         class_index = index.item()
+        label_name = CLASSES[class_index]
 
         predictions.append({
-            "class": CLASSES[class_index],
+            "label": label_name,
+            "class": label_name,
             "confidence": round(
                 probability.item() * 100,
                 2

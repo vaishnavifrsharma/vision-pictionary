@@ -58,13 +58,19 @@ async def predict(request: Request, file: UploadFile = File(None)):
                 detail="No image provided. Send FormData with 'file' or JSON with 'image' (base64 data URL)."
             )
 
-        predictions, processed_image = predict_image(image)
+        predictions, processed_image = predict_image(image, top_k=3)
 
         # Save processed image for debugging/verification
         processed_image.resize((280, 280)).save("processed_drawing.png")
 
+        # Encode 28x28 processed image as base64 for frontend visual pipeline
+        buf = io.BytesIO()
+        processed_image.save(buf, format="PNG")
+        proc_b64 = "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode("utf-8")
+
         return {
-            "predictions": predictions
+            "predictions": predictions,
+            "processed_image": proc_b64
         }
 
     except ValueError as e:
