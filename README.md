@@ -1,19 +1,20 @@
-# 🎯 AI Pictionary Classifier
+# 🎯 AI Pictionary Classifier (V2 - 50 Classes)
 
-An end-to-end Computer Vision application that transforms hand-drawn sketches into real-time predictions using a custom PyTorch Convolutional Neural Network trained on the Google QuickDraw dataset.
+An end-to-end Computer Vision application that transforms hand-drawn sketches into real-time predictions using a custom PyTorch Convolutional Neural Network trained on 50 Google QuickDraw dataset categories.
 
-Users can draw directly on an interactive canvas, send their sketch to a FastAPI backend, visualize the model's preprocessing pipeline, and receive confidence-ranked predictions instantly.
+Users can draw directly on an interactive canvas with QuickDraw-style continuous live predictions, view single top-1 estimates while drawing, and inspect full top-3 confidence rankings alongside model preprocessing visual pipelines on demand.
 
 ---
 
 ## ✨ Features
 
-- 🖌️ **Interactive Drawing Canvas**: Built with React + TypeScript, supporting custom stroke widths, undo, clear, and replay.
-- 🧠 **Custom PyTorch CNN**: Trained on 20 QuickDraw classes with **88.65% validation accuracy**.
-- ⚡ **FastAPI Backend**: Low-latency REST API accepting both base64 image data and multipart file uploads.
-- 📊 **Top-3 Confidence Predictions**: Interactive progress bars displaying softmax class probabilities.
-- 🔍 **Model Vision Pipeline ("What The Model Sees")**: Real-time visualization of the exact $28\times 28$ grayscale tensor fed into the neural network.
-- 🎨 **Natural Color Palette UI**: Styled with a custom nature-inspired theme (Beige, Dark Green, Midnight Green, Moss Green, and Rosy Brown).
+- 🖌️ **Interactive Drawing Canvas**: Built with React + TypeScript, featuring continuous live stroke capture, customizable stroke sizes, undo, clear, and replay.
+- ⏱️ **Calm Live Predictions**: Smooth 1500ms throttled real-time inference while drawing with non-intrusive Top-1 guess badges and threshold-gated confidence (`≥60%`).
+- 🧠 **PyTorch SketchCNN V2**: Enhanced deep convolutional network with Batch Normalization and 8° rotational data augmentation trained across 50 categories with **87.36% Top-1** and **96.36% Top-5 test accuracy**.
+- 📐 **2-Column Side-by-Side Layout**: Modern workspace with canvas on the left and live prediction sidebar on the right.
+- ⚡ **FastAPI Backend**: Low-latency REST API accepting base64 image data and multipart file uploads with sub-50ms CPU inference.
+- 🔍 **Model Vision Pipeline ("What The Model Sees")**: Real-time visual explanation displaying the exact $28\times 28$ preprocessed tensor fed into the CNN.
+- 🎨 **Custom Color Palette UI**: Styled with a warm, nature-inspired palette (Beige `#F7F4D5`, Dark Green `#0A3323`, Midnight Green `#105666`, Moss Green `#839958`, and Rosy Brown `#D3968C`).
 
 ---
 
@@ -33,7 +34,7 @@ cd vision-pictionary
 ```bash
 cd backend
 
-python -m venv venv
+python3 -m venv venv
 source venv/bin/activate
 # On Windows:
 # venv\Scripts\activate
@@ -41,7 +42,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Start FastAPI server (pre-trained model `models/best_model.pth` is included out of the box):
+Start FastAPI server (pre-trained 50-class model `models/best_model.pth` is included out of the box):
 
 ```bash
 uvicorn main:app --reload --port 8000
@@ -69,104 +70,69 @@ Frontend runs on: `http://localhost:5173`
 ### 4. Start Drawing
 
 1. Open `http://localhost:5173` in your browser.
-2. Draw a sketch on the canvas (e.g. cup, car, tree, pizza, star).
-3. Click **Predict**.
-4. View:
-   - Top-1 prediction highlight badge
-   - Top-3 confidence progress bars
-   - The exact $28\times 28$ preprocessed tensor seen by the model
+2. Draw any sketch from the 50 supported categories (e.g., house, guitar, pizza, airplane, eyeglasses, rainbow, dragon, etc.).
+3. Watch continuous top-1 live predictions update dynamically while drawing.
+4. Click **Predict** to reveal runner-up predictions and the preprocessed model vision tensor.
 
 ---
 
-## 📸 Sample Demo Drawings
+## 📚 Supported QuickDraw Categories (50 Classes)
 
-| Cup Example | Car Example | Tree Example | Pizza Example |
-| :---: | :---: | :---: | :---: |
-| ![Cup Example](demo_examples/cup_example.png) | ![Car Example](demo_examples/car_example.png) | ![Tree Example](demo_examples/tree_example.png) | ![Pizza Example](demo_examples/pizza_example.png) |
+`airplane`, `apple`, `banana`, `bicycle`, `book`, `bridge`, `bus`, `camera`, `candle`, `car`, `cat`, `chair`, `clock`, `cloud`, `cookie`, `cup`, `diamond`, `dog`, `door`, `drums`, `envelope`, `eye`, `eyeglasses`, `fish`, `flower`, `guitar`, `hammer`, `hat`, `headphones`, `house`, `ice cream`, `key`, `ladder`, `light bulb`, `lightning`, `moon`, `mountain`, `mushroom`, `pants`, `pencil`, `pizza`, `rainbow`, `scissors`, `shoe`, `skull`, `snake`, `snowflake`, `spider`, `star`, `tree`
 
 ---
 
 ## 🏗️ System Architecture
 
 ```text
-React Drawing Canvas
-          │
-          ▼
-     PNG Base64 / File
-          │
-          ▼
-   FastAPI Endpoint
-          │
-          ▼
- Image Preprocessing
- (Margin Trim → Crop → Pad → MaxFilter Thickening → 28×28 Resize)
-          │
-          ▼
-      28×28 Tensor
-          │
-          ▼
-  PyTorch SketchCNN
-          │
-          ▼
- Softmax Probabilities
-          │
-          ▼
-  Top-3 Predictions + Tensor Preview
+React Drawing Canvas (Left)         Prediction Sidebar (Right)
+         │                                      │
+         ├── Throttled (1500ms) Live Strokes ────┤
+         │                                      │
+         ▼                                      ▼
+    PNG Base64                         Single Top-1 Badge
+         │                            ("Keep Drawing..." if <60%)
+         ▼                                      │
+  FastAPI Backend                               │ (On Predict Click)
+         │                                      ▼
+Image Preprocessing Pipeline ──────> Top-3 Confidence Bars &
+(Crop -> Pad -> Thickening -> 28x28) 28x28 Model Vision Tensor
+         │
+         ▼
+PyTorch SketchCNN V2 (50 Classes)
 ```
 
 ---
 
-## 🧠 Machine Learning & Preprocessing Pipeline
+## 🤖 Model V2 Architecture & Performance
 
-### Dataset
-Google QuickDraw Dataset (20 Object Categories):
-- `apple`, `banana`, `book`, `car`, `cat`, `chair`, `clock`, `cloud`, `cup`, `dog`, `fish`, `flower`, `guitar`, `house`, `ice cream`, `key`, `light bulb`, `pizza`, `star`, `tree`
-
-### Preprocessing
-To match QuickDraw dataset characteristics ($\sim 1.8 - 2.2\text{px}$ stroke width at $28\times 28$ resolution), each sketch undergoes:
-1. **Flattening**: RGBA alpha composite onto white background.
-2. **Inversion**: Color inversion so background = 0 (black) and stroke = $>0$ (white).
-3. **Margin Trimming**: Outer 2% canvas margin stripping to eliminate frame artifacts.
-4. **Bounding Box Crop**: Tight bounding box extraction of non-zero stroke pixels.
-5. **Square Padding**: Aspect-ratio preserving square crop with ~14% relative padding.
-6. **Adaptive Stroke Thickening**: `PIL.ImageFilter.MaxFilter` scaling line width to match QuickDraw pixel density.
-7. **Downscaling**: Bilinear downsampling to $28\times 28$ and float $[0.0, 1.0]$ normalization.
-
----
-
-## 🤖 Model Architecture & Performance
-
-Custom Convolutional Neural Network (`SketchCNN`):
+Custom Convolutional Neural Network (`SketchCNN_v2`):
 
 ```text
 Input (1 × 28 × 28)
   │
-  ├── Conv2d(1 → 32, k=3, p=1) + ReLU + MaxPool2d(2)  ──> (32 × 14 × 14)
-  ├── Conv2d(32 → 64, k=3, p=1) + ReLU + MaxPool2d(2) ──> (64 × 7 × 7)
-  ├── Conv2d(64 → 128, k=3, p=1) + ReLU + MaxPool2d(2)──> (128 × 3 × 3)
-  ├── Flatten (1152) ──> Linear(1152 → 256) + ReLU + Dropout(0.5)
-  └── Linear(256 → 20) ──> Softmax Output
+  ├── Conv2d(1 → 32, k=3, p=1)  → BatchNorm2d(32)  → ReLU → MaxPool2d(2) ──> (32 × 14 × 14)
+  ├── Conv2d(32 → 64, k=3, p=1) → BatchNorm2d(64)  → ReLU → MaxPool2d(2) ──> (64 × 7 × 7)
+  ├── Conv2d(64 → 128, k=3, p=1)→ BatchNorm2d(128) → ReLU → MaxPool2d(2) ──> (128 × 3 × 3)
+  ├── Flatten (1152) → Linear(1152 → 256) → BatchNorm1d(256) → ReLU → Dropout(0.4)
+  └── Linear(256 → 50) → Softmax Output
 ```
 
-- **Validation Accuracy**: **88.65%** top-1 accuracy on QuickDraw test sets.
-- **Model Checkpoint**: Included at `backend/models/best_model.pth` (1.5 MB).
+- **Training Dataset**: 75,000 QuickDraw sketches across 50 categories (1,500 samples/class).
+- **Data Augmentation**: `RandomRotation(degrees=8)` during PyTorch training.
+- **Top-1 Test Accuracy**: **87.36%**
+- **Top-5 Test Accuracy**: **96.36%**
+- **Confusion Matrix**: Saved at `backend/experiments/confusion_matrix.png`.
+- **Model Checkpoint**: Included at `backend/models/best_model.pth` (1.6 MB).
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: React 18, TypeScript, HTML5 Canvas, Vanilla CSS3 (Custom Palette: Beige `#F7F4D5`, Dark Green `#0A3323`, Midnight Green `#105666`, Moss Green `#839958`, Rosy Brown `#D3968C`)
+- **Frontend**: React 18, TypeScript, HTML5 Canvas, Vanilla CSS3
 - **Backend**: FastAPI, Uvicorn, Python 3.10+, PIL (Pillow)
-- **Machine Learning**: PyTorch, NumPy, Scikit-Learn, Matplotlib
-- **Dataset**: Google QuickDraw
-
----
-
-## 🎓 Key Learnings & Engineering Highlights
-
-- **Preprocessing Mismatch Resolution**: Solved downsampling line fading and border leakage issues by implementing adaptive stroke dilation and margin trimming.
-- **Transparent Model Explainability**: Exposed the intermediate $28\times 28$ tensor to demystify black-box neural network predictions.
-- **Low-Latency Serving**: Optimized REST payload decoding to achieve sub-50ms inference time on CPU.
+- **Machine Learning**: PyTorch, Torchvision, NumPy, Scikit-Learn, Matplotlib
+- **Dataset**: Google QuickDraw (50 Classes)
 
 ---
 

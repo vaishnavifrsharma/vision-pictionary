@@ -354,8 +354,8 @@ export default function DrawingCanvas() {
   const topPrediction = predictions.length > 0 ? predictions[0] : null;
   const otherPredictions = predictions.slice(1);
 
-  // Confidence threshold (< 40% shows "Keep Drawing...")
-  const isHighConfidence = topPrediction && topPrediction.confidence >= 60;
+  // Confidence threshold (< 70% shows "Keep Drawing...")
+  const isHighConfidence = topPrediction && topPrediction.confidence >= 70;
 
   return (
     <div className="app-container">
