@@ -14,7 +14,7 @@
   --accent-primary: #839958;
   --accent-highlight: #D3968C;
   --accent-secondary: #105666;
-  --bar-bg: rgba(16, 86, 102, 0.4);
+  --bar-bg: rgba(16, 86, 102, 0.6);
   --bar-fill: linear-gradient(90deg, #839958 0%, #D3968C 100%);
   --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
@@ -31,9 +31,9 @@ body {
 }
 
 .app-container {
-  max-width: 950px;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 2.5rem 1rem;
+  padding: 2rem 1.5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -45,7 +45,7 @@ body {
 }
 
 .app-title {
-  font-size: 2.85rem;
+  font-size: 2.75rem;
   font-weight: 800;
   margin: 0 0 0.5rem 0;
   color: var(--c-dark-green);
@@ -63,17 +63,31 @@ body {
   font-weight: 600;
 }
 
+/* 2-Column Side-by-Side Layout: Canvas on Left, Predictions on Right */
+.main-workspace {
+  display: grid;
+  grid-template-columns: 1fr 440px;
+  gap: 1.75rem;
+  width: 100%;
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .main-workspace {
+    grid-template-columns: 1fr;
+  }
+}
+
 .canvas-card {
   background: var(--card-bg);
   border: 2px solid var(--c-moss-green);
   border-radius: 20px;
-  padding: 1.75rem;
+  padding: 1.5rem;
   box-shadow: 0 20px 35px -10px rgba(10, 51, 35, 0.35);
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
-  max-width: 840px;
   box-sizing: border-box;
 }
 
@@ -84,7 +98,7 @@ canvas {
   box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.1), 0 6px 16px rgba(10, 51, 35, 0.2);
   cursor: crosshair;
   touch-action: none;
-  max-width: 100%;
+  width: 100%;
   height: auto;
 }
 
@@ -93,9 +107,9 @@ canvas {
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  margin-top: 1.5rem;
+  margin-top: 1.25rem;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 0.85rem;
 }
 
 .brush-control {
@@ -103,13 +117,13 @@ canvas {
   align-items: center;
   gap: 0.75rem;
   background: var(--c-midnight-green);
-  padding: 0.5rem 1.25rem;
+  padding: 0.45rem 1.1rem;
   border-radius: 9999px;
   border: 1px solid rgba(247, 244, 213, 0.3);
 }
 
 .brush-control label {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: var(--c-beige);
   font-weight: 600;
 }
@@ -117,25 +131,25 @@ canvas {
 .brush-control input[type="range"] {
   accent-color: var(--c-rosy-brown);
   cursor: pointer;
-  width: 110px;
+  width: 95px;
 }
 
 .brush-size-val {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 700;
   color: var(--c-rosy-brown);
-  min-width: 36px;
+  min-width: 32px;
 }
 
 .action-buttons {
   display: flex;
-  gap: 0.75rem;
+  gap: 0.6rem;
   flex-wrap: wrap;
 }
 
 .btn {
-  padding: 0.65rem 1.35rem;
-  font-size: 0.95rem;
+  padding: 0.6rem 1.15rem;
+  font-size: 0.9rem;
   font-weight: 700;
   border-radius: 10px;
   border: none;
@@ -143,7 +157,7 @@ canvas {
   transition: all 0.25s ease;
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.35rem;
 }
 
 .btn-secondary {
@@ -186,54 +200,26 @@ canvas {
   transform: none;
 }
 
-.loading-container {
-  margin-top: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  background: rgba(211, 150, 140, 0.25);
-  border: 1px solid var(--c-rosy-brown);
-  padding: 0.75rem 1.5rem;
-  border-radius: 9999px;
-  color: var(--c-beige);
-  font-weight: 600;
-}
-
-.spinner {
-  width: 18px;
-  height: 18px;
-  border: 3px solid rgba(247, 244, 213, 0.3);
-  border-top-color: var(--c-rosy-brown);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* Prediction Display Cards */
-.results-wrapper {
-  margin-top: 2rem;
-  width: 100%;
-  max-width: 840px;
+/* Sidebar Right Section */
+.sidebar-results {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  width: 100%;
 }
 
 .prediction-card {
   background: var(--c-midnight-green);
   border: 2px solid var(--c-moss-green);
   border-radius: 20px;
-  padding: 1.75rem;
+  padding: 1.5rem;
   box-shadow: 0 12px 30px -5px rgba(10, 51, 35, 0.3);
 }
 
 .prediction-header {
-  font-size: 1.3rem;
+  font-size: 1.25rem;
   font-weight: 700;
-  margin: 0 0 1.25rem 0;
+  margin: 0 0 1.15rem 0;
   color: var(--c-beige);
   display: flex;
   align-items: center;
@@ -244,8 +230,8 @@ canvas {
   background: var(--c-dark-green);
   border: 2px solid var(--c-rosy-brown);
   border-radius: 14px;
-  padding: 1.35rem 1.5rem;
-  margin-bottom: 1.5rem;
+  padding: 1.25rem 1.35rem;
+  margin-bottom: 1.25rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -254,11 +240,11 @@ canvas {
 .top-pick-info {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.2rem;
 }
 
 .top-pick-title {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--c-moss-green);
@@ -266,35 +252,35 @@ canvas {
 }
 
 .top-pick-label {
-  font-size: 2.1rem;
+  font-size: 1.95rem;
   font-weight: 800;
   color: var(--c-beige);
   text-transform: capitalize;
 }
 
 .top-pick-score {
-  font-size: 1.75rem;
+  font-size: 1.65rem;
   font-weight: 800;
   color: var(--c-rosy-brown);
 }
 
 .other-guesses-title {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 700;
   color: #c3cbab;
-  margin-bottom: 0.85rem;
+  margin-bottom: 0.75rem;
 }
 
 .prediction-item {
   display: grid;
-  grid-template-columns: 110px 1fr 65px;
+  grid-template-columns: 100px 1fr 55px;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 0.85rem;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
 }
 
 .prediction-item .label {
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 600;
   text-transform: capitalize;
   color: var(--c-beige);
@@ -302,7 +288,7 @@ canvas {
 
 .prediction-item .bar {
   width: 100%;
-  height: 12px;
+  height: 11px;
   background: rgba(10, 51, 35, 0.6);
   border-radius: 999px;
   overflow: hidden;
@@ -317,10 +303,28 @@ canvas {
 }
 
 .prediction-item .percent {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 700;
   color: var(--c-rosy-brown);
   text-align: right;
+}
+
+/* Empty Sidebar Placeholder Card */
+.empty-sidebar-placeholder {
+  background: var(--c-dark-green);
+  border: 2px dashed rgba(131, 153, 88, 0.4);
+  border-radius: 14px;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  color: #c3cbab;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.empty-sidebar-placeholder span {
+  font-size: 2.5rem;
 }
 
 /* Model Vision Pipeline Visualizer */
@@ -328,14 +332,14 @@ canvas {
   background: var(--c-dark-green);
   border: 2px solid var(--c-moss-green);
   border-radius: 20px;
-  padding: 1.75rem;
+  padding: 1.35rem;
 }
 
 .pipeline-title {
-  font-size: 1.15rem;
+  font-size: 1.05rem;
   font-weight: 700;
   color: var(--c-beige);
-  margin: 0 0 1.25rem 0;
+  margin: 0 0 1rem 0;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -345,28 +349,27 @@ canvas {
   display: flex;
   align-items: center;
   justify-content: space-around;
-  gap: 1rem;
-  flex-wrap: wrap;
+  gap: 0.75rem;
 }
 
 .pipeline-step {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.35rem;
 }
 
 .pipeline-step-label {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 700;
   color: #c3cbab;
   text-transform: uppercase;
 }
 
 .processed-preview {
-  width: 112px;
-  height: 112px;
-  border-radius: 10px;
+  width: 96px;
+  height: 96px;
+  border-radius: 8px;
   border: 2px solid var(--c-rosy-brown);
   background: #000;
   image-rendering: pixelated;
@@ -375,6 +378,6 @@ canvas {
 }
 
 .pipeline-arrow {
-  font-size: 1.75rem;
+  font-size: 1.5rem;
   color: var(--c-moss-green);
 }
