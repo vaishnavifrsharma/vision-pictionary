@@ -9,13 +9,13 @@ venv/
 # Python environment files
 .env
 
-# Datasets
+# Datasets (large .npy files downloaded via download_dataset.py)
 backend/data/
 data/
 
-# Model checkpoints
-backend/models/
-models/
+# Model Checkpoints (keep best_model.pth tracked so app runs out of the box)
+backend/models/*
+!backend/models/best_model.pth
 
 # macOS
 .DS_Store
@@ -23,19 +23,6 @@ models/
 # VS Code
 .vscode/
 
-#testing
-backend/processed_drawing.png/
-backend/received_canvas.png/
-
-# Debug images
+# Temporary Debug Outputs
 backend/processed_drawing.png
 backend/received_canvas.png
-
-# Local demo images
-car_example.png
-cup_example.png
-pizza_example.png
-tree_example.png
-
-# Demo folder
-demo_examples/
