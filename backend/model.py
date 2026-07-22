@@ -3,6 +3,7 @@ import torch.nn as nn
 
 class SketchCNN(nn.Module):
 
+
     def __init__(self, num_classes):
         super().__init__()
 
